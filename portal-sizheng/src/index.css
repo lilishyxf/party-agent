@@ -1,0 +1,44 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 去掉 antd 组件点击后的文本输入光标 */
+.ant-menu-item:focus-visible,
+.ant-menu-submenu:focus-visible,
+.ant-menu-item:focus,
+.ant-menu-submenu:focus {
+  outline: none !important;
+}
+
+.ant-menu-item,
+.ant-menu-submenu-title,
+.ant-btn,
+.ant-breadcrumb-link,
+.ant-tag {
+  user-select: none;
+  -webkit-user-select: none;
+}

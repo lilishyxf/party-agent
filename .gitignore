@@ -1,0 +1,57 @@
+# === 敏感信息 — 绝对不能提交 ===
+.env
+backend/.env
+deploy.py
+deploy/
+
+# === 二进制 / 大文件 ===
+*.exe
+*.dll
+*.so
+*.dylib
+*.pptx
+*.ppt
+*.doc
+*.docx
+*.pdf
+!outputs/*.docx
+!archive/**/*.docx
+docs/多媒体内容/
+
+# === 依赖 ===
+node_modules/
+venv/
+backend/venv/
+
+# === 构建产物 ===
+dist/
+portal-admin/dist/
+portal/dist/
+portal-sizheng/dist/
+portal-sizheng-student/dist/
+
+# === Python ===
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# === IDE / 编辑器 ===
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === 上传文件 / 媒体 / 数据库 ===
+media/
+uploads/
+*.sql
+*.tar.gz
+*.tar
+
+# === 临时文件 ===
+tmp_*

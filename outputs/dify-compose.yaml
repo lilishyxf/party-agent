@@ -1,0 +1,111 @@
+version: "3.8"
+services:
+  redis:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+
+  weaviate:
+    image: semitechnologies/weaviate:1.27.0
+    restart: always
+    environment:
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      AUTHENTICATION_APIKEY_ENABLED: "true"
+      AUTHENTICATION_APIKEY_ALLOWED_KEYS: WVF5YThaHlkYwhGUSmCRgsX3tD5ngdN8pkih
+      AUTHENTICATION_APIKEY_USERS: hello@dify.ai
+      AUTHORIZATION_ADMINLIST_ENABLED: "true"
+      AUTHORIZATION_ADMINLIST_USERS: hello@dify.ai
+      CLUSTER_HOSTNAME: node1
+      DEFAULT_VECTORIZER_MODULE: none
+      PERSISTENCE_DATA_PATH: /var/lib/weaviate
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+
+  api:
+    image: langgenius/dify-api:1.10.0
+    restart: always
+    environment:
+      MODE: api
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - weaviate
+    volumes:
+      - storage:/app/api/storage
+    ports:
+      - "5001:5001"
+
+  worker:
+    image: langgenius/dify-api:1.10.0
+    restart: always
+    environment:
+      MODE: worker
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - api
+      - weaviate
+    volumes:
+      - storage:/app/api/storage
+
+  sandbox:
+    image: langgenius/dify-sandbox:latest
+    restart: always
+    environment:
+      API_KEY: ${SANDBOX_API_KEY:-dify-sandbox}
+      GIN_MODE: release
+      WORKER_TIMEOUT: 15
+    volumes:
+      - ./storage:/storage
+
+  web:
+    image: langgenius/dify-web:1.10.0
+    restart: always
+    environment:
+      CONSOLE_API_URL: ""
+      APP_API_URL: ""
+    ports:
+      - "3000:3000"
+
+  plugin_daemon:
+    image: langgenius/dify-plugin-daemon:0.4.1-local
+    volumes:
+      - /opt/dify/plugin_cache:/root/.cache/uv
+      - plugin_storage:/app/storage
+    restart: always
+    environment:
+      UV_HTTP_TIMEOUT: "300"
+      UV_INDEX_URL: "https://mirrors.cloud.aliyuncs.com/pypi/simple"
+      UV_CACHE_DIR: /root/.cache/uv
+      PLUGIN_PYTHON_ENV_INIT_TIMEOUT: "600"
+      SERVER_KEY: lYkiYYT6owG+71oLerGzA7GXCgOT++6ovaezWAjpCjf+Sjc3ZtU+qUEi
+      DB_USERNAME: party_agent
+      DB_PASSWORD: party2026
+      DB_DATABASE: dify_plugin
+      DB_HOST: 172.17.0.1
+      DB_PORT: "5432"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ""
+      REDIS_DB: "0"
+      SERVER_PORT: "5002"
+      DIFY_INNER_API_URL: http://api:5001
+      DIFY_INNER_API_KEY: QaHbTe77CtuXmsfyhR7+vRjI/+XbV1AaFy691iy+kGDv2Jvy0/eAh8Y1
+      PLUGIN_WORKING_PATH: /app/storage/cwd
+      PLUGIN_REMOTE_INSTALLING_HOST: 0.0.0.0
+      PLUGIN_REMOTE_INSTALLING_PORT: "5003"
+      FORCE_VERIFYING_SIGNATURE: "false"
+    depends_on:
+      - redis
+    ports:
+      - "5002:5002"
+      - "5003:5003"
+
+volumes:
+  redis_data:
+  storage:
+  plugin_storage:
+  weaviate_data:
