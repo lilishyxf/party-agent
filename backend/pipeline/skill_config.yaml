@@ -1,0 +1,61 @@
+name: "teaching-sizheng-video"
+version: "1.0"
+scene_count: 8
+target_duration_seconds: 120
+narration_rate_cps: 3
+
+style_tracks:
+  - key: flat_illustration
+    label: "扁平插画叙事"
+    prompt_prefix_zh: "2D平面矢量插画,卡通风格,教育类动画美学,蓝调主导配米色橙色点缀,简洁线条,色彩明快"
+    prompt_prefix_en: "flat vector illustration in 2D cartoon style, educational animation aesthetic, corporate memphis illustration, navy blue palette with cream and orange accents, simple flat colors, clean lines, minimal details"
+
+  - key: industrial_documentary
+    label: "工业纪实科技"
+    prompt_prefix_zh: "半写实工业纪录片摄影质感,冷色调蓝绿主导,景深虚化,设备和UI为视觉中心,工业氛围"
+    prompt_prefix_en: "cinematic industrial documentary photography, semi-realistic, cool color palette with blue-green tones, shallow depth of field, equipment and UI focused, industrial atmosphere"
+
+  - key: historical_humanities
+    label: "历史人文"
+    prompt_prefix_zh: "国风水墨结合现代插画,历史叙事美学,大地色调配红色点缀,水彩质感"
+    prompt_prefix_en: "Chinese ink wash painting style mixed with modern illustration, historical narrative aesthetic, muted earth tones with red accents, watercolor textures, traditional brush strokes"
+
+teaching_functions:
+  - { scene: 1, function: "设景设问", description: "用真实场景引出难题,让观众产生'这怎么解决'的疑问" }
+  - { scene: 2, function: "概念引入", description: "知识点正式登场,一句话说清楚它是什么" }
+  - { scene: 3, function: "核心机制1", description: "知识点的第一个关键步骤/原理" }
+  - { scene: 4, function: "核心机制2", description: "第二个关键步骤/原理" }
+  - { scene: 5, function: "核心机制3", description: "第三个步骤,或综合演示" }
+  - { scene: 6, function: "结果展示", description: "难题被解决" }
+  - { scene: 7, function: "思政升华", description: "对国家/学科/未来的意义" }
+  - { scene: 8, function: "价值收束", description: "回到知识点本身,与开头呼应" }
+
+pipeline_stages:
+  - { key: "align", label: "对齐规划", type: "llm", produces: ["alignment_statement", "scene_plan_json", "word_budget_json"] }
+  - { key: "narrate", label: "旁白生成", type: "llm", produces: ["full_narration"] }
+  - { key: "prompt_gen", label: "分镜提示词", type: "llm", produces: ["scene_prompts"], quality_gate: "human_review_required" }
+  - { key: "char_ref", label: "角色参照图", type: "llm+api", produces: ["character_sheets_json"], description: "检测脚本中的人物角色,生成三视图参照卡用于跨Scene一致性对齐" }
+  - { key: "image_gen", label: "图像生成", type: "api", produces: ["start_frame", "end_frame"], quality_gate: "human_review_required" }
+  - { key: "video_gen", label: "视频生成", type: "api", produces: ["video_segment"] }
+  - { key: "assemble", label: "后期合成", type: "local", produces: ["final_mp4"] }
+
+# Track 2 hard rules
+track2_composition_rules:
+  - "人物只用背影/手部/远景/剪影,禁正面近景"
+  - "主体优先级:设备特写 > 屏幕UI > 工业场景广角 > 人物背影"
+
+# Anti-patterns enforced at generation time
+anti_patterns:
+  - "画面prompt里不能写'显示文字XX/对话框写XX'——AI画不出来中文"
+  - "Scene时长不能超过15秒"
+  - "Scene之间不能安排同一角色近景特写来回切"
+  - "动效prompt不能写'剧烈动作/快速奔跑'"
+  - "思政不能在结尾贴标签——要贯穿全片"
+
+safety_rules:
+  - "党和国家领导人的虚构言行或可识别形象"
+  - "民族、宗教、地域的负面刻画或敏感争议"
+  - "历史虚无主义内容(否定党史国史关键结论)"
+  - "未经授权使用真实在世人物形象或姓名"
+  - "色情、暴力、血腥、自残相关内容"
+  - "涉台港澳/领土主权的非官方表述"
